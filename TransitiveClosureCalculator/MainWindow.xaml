@@ -15,12 +15,12 @@
         <DockPanel Grid.Column="0" Margin="6">
             <StackPanel DockPanel.Dock="Top">
                 <TextBlock Padding="2" Text="Draw a graph in the canvas below. Right-click to add a vertex or to remove a vertex/edge. Left-click to begin drawing an edge. Left-click and hold to move a vertex." TextWrapping="Wrap" TextAlignment="Left" />
-                <GroupBox Header="Configure" Margin="0 4 0 0">
+                <!--<GroupBox Header="Configure" Margin="0 4 0 0">
                     <StackPanel Orientation="Horizontal" Margin="6">
                         <RadioButton GroupName="DirectedGroup" Margin="0 0 10 0" IsChecked="True">Directed Graph</RadioButton>
                         <RadioButton GroupName="DirectedGroup" Margin="0 0 10 0" >Undirected Graph</RadioButton>
                     </StackPanel>
-                </GroupBox>
+                </GroupBox>-->
             </StackPanel>
             <Border DockPanel.Dock="Bottom" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="2" Margin="0 6 0 0">
                 <Canvas Name="Canvas" Background="White" MouseMove="Canvas_MouseMove" MouseLeftButtonUp="Canvas_MouseLeftButtonUp" MouseLeftButtonDown="Canvas_MouseLeftButtonDown" MouseRightButtonDown="Canvas_MouseRightButtonDown" MouseRightButtonUp="Canvas_MouseRightButtonUp">
@@ -54,12 +54,12 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <StackPanel>
-                                <CheckBox>Make reflexive</CheckBox>
-                                <CheckBox>Make transitive</CheckBox>
+                                <CheckBox Name="ReflexiveCheckBox">Make reflexive</CheckBox>
+                                <CheckBox Name="TransitiveCheckBox">Make transitive</CheckBox>
                             </StackPanel>
-                            <CheckBox Grid.Column="1">Make symmetric</CheckBox>
+                            <CheckBox Grid.Column="1" Name="SymmetricCheckBox">Make symmetric</CheckBox>
                         </Grid>
-                        <Button DockPanel.Dock="Bottom" Width="64" Height="24" Margin="0 4 0 -2">Calculate!</Button>
+                        <Button Click="Calculate_Button_Click" DockPanel.Dock="Bottom" Width="64" Height="24" Margin="0 4 0 -2">Calculate!</Button>
                     </DockPanel>
                         
                         
@@ -70,9 +70,10 @@
                         <TextBlock Name="ResultMatrixTextBlock" DockPanel.Dock="Bottom" TextWrapping="Wrap">
                             Reflexive: Yes; Symmetric: Yes; Transitive: Yes
                         </TextBlock>
-                        <TextBox Name="ResultMatrixTextBox" IsReadOnly="True" FontFamily="Consolas">
-
-                        </TextBox>
+                        <DockPanel>
+                            <TextBlock Name="ResultMatrixAddedEdges" DockPanel.Dock="Bottom" Text="Added edges: " TextWrapping="Wrap" />
+                            <TextBox Name="ResultMatrixTextBox" IsReadOnly="True" FontFamily="Consolas" />
+                        </DockPanel>
                     </DockPanel>
                 </GroupBox>
             </Grid>

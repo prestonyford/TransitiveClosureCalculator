@@ -9,6 +9,8 @@ namespace TransitiveClosureCalculator.Classes {
     internal class Matrix {
         private List<string> Vertices;
         private Dictionary<string, HashSet<string>> AdjacencyList;
+        public List<Tuple<string, string>> AddedEdges = new List<Tuple<string, string>>();
+
         public Matrix(List<string> vertices, Dictionary<string, HashSet<string>> adjacencyList) {
             vertices.Sort((x, y) => Int32.Parse(x).CompareTo(Int32.Parse(y)));
             Vertices = vertices;
@@ -27,6 +29,40 @@ namespace TransitiveClosureCalculator.Classes {
                 }
             }
             return res;
+        }
+
+        public void MakeReflexive() {
+            foreach (string vertex in Vertices) {
+                if (!AdjacencyList[vertex].Contains(vertex)) {
+                    AdjacencyList[vertex].Add(vertex);
+                    AddedEdges.Add(new Tuple<string, string>(vertex, vertex));
+                }
+            }
+        }
+        public void MakeSymmetric() {
+            foreach (string vertex in Vertices) {
+                foreach (string neighbor in AdjacencyList[vertex]) {
+                    if (!AdjacencyList[neighbor].Contains(vertex)) {
+                        AdjacencyList[neighbor].Add(vertex);
+                        AddedEdges.Add(new Tuple<string, string>(neighbor, vertex));
+                    }
+                }
+            }
+        }
+        public void MakeTransitive() {
+            // Warshall's Algorithm
+            foreach (string k in Vertices) {
+                foreach (string i in Vertices) {
+                    foreach (string j in Vertices) {
+                        if (AdjacencyList[i].Contains(k) && AdjacencyList[k].Contains(j)) {
+                            if (!AdjacencyList[i].Contains(j)) {
+                                AdjacencyList[i].Add(j);
+                                AddedEdges.Add(new Tuple<string, string>(i, j));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public bool IsReflexive {

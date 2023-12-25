@@ -237,6 +237,10 @@ namespace TransitiveClosureCalculator {
             }
         }
 
+        private void Calculate_Button_Click(object sender, RoutedEventArgs e) {
+            UpdateResultingMatrix();
+        }
+
         // Helpers
 
         private ArrowLine DrawArrowLine(Point start, Point end, int zIndex = 1) {
@@ -270,9 +274,37 @@ namespace TransitiveClosureCalculator {
             }
 
             Classes.Matrix matrix = new Classes.Matrix(stringAdjacencyList.Keys.ToList(), stringAdjacencyList);
-            StartMatrixTextBox.Text = matrix.ToString();
 
-            StartMatrixTextBlock.Text = $"Reflexive: {(matrix.IsReflexive? "Yes" : "No")}; Symmetric: {(matrix.IsSymmetric ? "Yes" : "No")}; Transitive: {(matrix.IsTransitive ? "Yes" : "No")}";
+            StartMatrixTextBox.Text = matrix.ToString();
+            StartMatrixTextBlock.Text = $"Reflexive: {(matrix.IsReflexive ? "Yes" : "No")}; Symmetric: {(matrix.IsSymmetric ? "Yes" : "No")}; Transitive: {(matrix.IsTransitive ? "Yes" : "No")}";
+        }
+
+        private void UpdateResultingMatrix() {
+            var stringAdjacencyList = new Dictionary<string, HashSet<string>>();
+            foreach (Vertex key in AdjacencyList.Keys) {
+                stringAdjacencyList.Add(key.ID, AdjacencyList[key].Select(x => x.ID).ToHashSet());
+            }
+
+            Classes.Matrix matrix = new Classes.Matrix(stringAdjacencyList.Keys.ToList(), stringAdjacencyList);
+
+            if (ReflexiveCheckBox.IsChecked == true) {
+                matrix.MakeReflexive();
+            }
+            if (SymmetricCheckBox.IsChecked == true) {
+                matrix.MakeSymmetric();
+            }
+            if (TransitiveCheckBox.IsChecked == true) {
+                matrix.MakeTransitive();
+            }
+
+            ResultMatrixTextBox.Text = matrix.ToString();
+            List<string> addedEdgesStrings = new List<string>(matrix.AddedEdges.Count);
+            matrix.AddedEdges.Sort((x, y) => Int32.Parse(x.Item1).CompareTo(Int32.Parse(y.Item1)));
+            foreach (Tuple<string, string> pair in matrix.AddedEdges) {
+                addedEdgesStrings.Add($"({pair.Item1}, {pair.Item2})");
+            }
+            ResultMatrixAddedEdges.Text = $"Added edges: {string.Join(", ", addedEdgesStrings)}";
+            ResultMatrixTextBlock.Text = $"Reflexive: {(matrix.IsReflexive ? "Yes" : "No")}; Symmetric: {(matrix.IsSymmetric ? "Yes" : "No")}; Transitive: {(matrix.IsTransitive ? "Yes" : "No")}";
         }
     }
 }
