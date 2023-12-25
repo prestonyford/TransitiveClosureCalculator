@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,8 +28,9 @@ namespace TransitiveClosureCalculator {
         private Line? prevFrameEdgeDraw = null;
         private Vertex? StartingVertexEdgeDraw = null;
         private Dictionary<Vertex, List<Line>> VertexConnectingEdges = new Dictionary<Vertex, List<Line>>();
+        private Dictionary<Line, Tuple<Vertex, Vertex>> EdgesConnectingVertices = new Dictionary<Line, Tuple<Vertex, Vertex>>();
         private Dictionary<Vertex, List<Vertex>> AdjacencyList = new Dictionary<Vertex, List<Vertex>>();
-        private Dictionary<Vertex, List<Vertex>> UndirectedAdjacencyList = new Dictionary<Vertex, List<Vertex>>();
+        private Dictionary<Vertex, List<Vertex>> ReverseAdjacencyList = new Dictionary<Vertex, List<Vertex>>();
 
         public MainWindow() {
             InitializeComponent();
@@ -71,7 +73,7 @@ namespace TransitiveClosureCalculator {
 
             VertexConnectingEdges.Add(vertex, new List<Line>());
             AdjacencyList.Add(vertex, new List<Vertex>());
-            UndirectedAdjacencyList.Add(vertex, new List<Vertex>());
+            ReverseAdjacencyList.Add(vertex, new List<Vertex>());
 
             vertex.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
                 Canvas.Children.Remove(vertex);
@@ -79,14 +81,30 @@ namespace TransitiveClosureCalculator {
                 foreach (Line edge in VertexConnectingEdges[vertex]) {
                     Canvas.Children.Remove(edge);
                 }
+
                 VertexConnectingEdges.Remove(vertex);
+                foreach (Vertex neighbor in AdjacencyList[vertex]) {
+                    ReverseAdjacencyList[neighbor].Remove(vertex);
+                }
+                foreach (Vertex neighbor in ReverseAdjacencyList[vertex]) {
+                    AdjacencyList[neighbor].Remove(vertex);
+                }
                 AdjacencyList.Remove(vertex);
-                UndirectedAdjacencyList.Remove(vertex);
+                ReverseAdjacencyList.Remove(vertex);
+
+                if (DrawingEdge && StartingVertexEdgeDraw == vertex) {
+                    DrawingEdge = false;
+                    Canvas.Children.Remove(prevFrameEdgeDraw);
+                    prevFrameEdgeDraw = null;
+                }
 
                 e.Handled = true;
             };
             vertex.MouseLeftButtonDown += (object sender, MouseButtonEventArgs e) => {
-                Dragging = true;
+                if (!DrawingEdge) {
+                    Dragging = true;
+                }
+                
                 DraggedVertex = vertex;
                 DragStartPos = e.GetPosition(Canvas);
             };
@@ -103,9 +121,26 @@ namespace TransitiveClosureCalculator {
                     else {
                         Console.WriteLine("End drawing edge");
                         DrawingEdge = false;
-                        if (prevFrameEdgeDraw != null) {
+                        if (prevFrameEdgeDraw != null && StartingVertexEdgeDraw != null) {
                             Canvas.Children.Remove(prevFrameEdgeDraw);
                             Line finishedLine = DrawLine(DrawingEdgeStartPos, new Point(Canvas.GetLeft(vertex) + vertexRadius, Canvas.GetTop(vertex) + vertexRadius));
+                            finishedLine.IsHitTestVisible = true;
+                            EdgesConnectingVertices.Add(finishedLine, new Tuple<Vertex, Vertex>(StartingVertexEdgeDraw, vertex));
+
+                            // Right click to remove edge
+                            finishedLine.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
+                                //VertexConnectingEdges.Add(vertex, new List<Line>());
+                                //AdjacencyList.Add(vertex, new List<Vertex>());
+                                //ReverseAdjacencyList.Add(vertex, new List<Vertex>());
+                                Canvas.Children.Remove(finishedLine);
+                                Vertex v1 = EdgesConnectingVertices[finishedLine].Item1;
+                                Vertex v2 = EdgesConnectingVertices[finishedLine].Item2;
+                                AdjacencyList[v1].Remove(v2);
+                                AdjacencyList[v2].Remove(v1);
+                                ReverseAdjacencyList[v1].Remove(v2);
+                                ReverseAdjacencyList[v2].Remove(v1);
+                                e.Handled = true;
+                            };
 
                             if (StartingVertexEdgeDraw == null) {
                                 return;
@@ -114,8 +149,7 @@ namespace TransitiveClosureCalculator {
                             VertexConnectingEdges[StartingVertexEdgeDraw].Add(finishedLine);
                             VertexConnectingEdges[vertex].Add(finishedLine);
                             AdjacencyList[StartingVertexEdgeDraw].Add(vertex);
-                            UndirectedAdjacencyList[StartingVertexEdgeDraw].Add(vertex);
-                            UndirectedAdjacencyList[vertex].Add(StartingVertexEdgeDraw);
+                            ReverseAdjacencyList[vertex].Add(StartingVertexEdgeDraw);
                         }
                     }
                 }
@@ -149,7 +183,7 @@ namespace TransitiveClosureCalculator {
 
                 // Now rerender lines
                 double vertexRadius = DraggedVertex.VertexWidth / 2;
-                foreach (Vertex neighbor in UndirectedAdjacencyList[DraggedVertex]) {
+                foreach (Vertex neighbor in AdjacencyList[DraggedVertex].Concat(ReverseAdjacencyList[DraggedVertex])) {
                     Point startPos = new Point(Canvas.GetLeft(neighbor) + vertexRadius, Canvas.GetTop(neighbor) + vertexRadius);
                     Line edge = DrawLine(startPos, pos);
                     
@@ -173,8 +207,8 @@ namespace TransitiveClosureCalculator {
             Line edge = new Line();
             edge.IsHitTestVisible = false;
             edge.Stroke = Brushes.Black;
-            edge.StrokeThickness = 2;
-            Panel.SetZIndex(edge, 2);
+            edge.StrokeThickness = 3;
+            Panel.SetZIndex(edge, -1);
             edge.X1 = start.X;
             edge.Y1 = start.Y;
             edge.X2 = end.X;
