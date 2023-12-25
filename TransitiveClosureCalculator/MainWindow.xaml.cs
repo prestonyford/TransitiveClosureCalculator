@@ -100,6 +100,7 @@ namespace TransitiveClosureCalculator {
                     prevFrameEdgeDraw = null;
                 }
 
+                UpdateStartingMatrix();
                 e.Handled = true;
             };
             vertex.MouseLeftButtonDown += (object sender, MouseButtonEventArgs e) => {
@@ -141,6 +142,7 @@ namespace TransitiveClosureCalculator {
                                 AdjacencyList[v2].Remove(v1);
                                 ReverseAdjacencyList[v1].Remove(v2);
                                 ReverseAdjacencyList[v2].Remove(v1);
+                                UpdateStartingMatrix();
                                 e.Handled = true;
                             };
 
@@ -156,11 +158,14 @@ namespace TransitiveClosureCalculator {
                             Panel.SetZIndex(StartingVertexEdgeDraw, 0);
                             Panel.SetZIndex(finishedArrowLine, -1);
                             ShortenArrowLine(finishedArrowLine);
+
+                            UpdateStartingMatrix();
                         }
                     }
                 }
             };
 
+            UpdateStartingMatrix();
             e.Handled = true;
         }
 
@@ -256,6 +261,18 @@ namespace TransitiveClosureCalculator {
             double newDistance = Math.Max(0, distance - 33);
             edge.X2 = edge.X1 + newDistance * Math.Cos(angleRadians);
             edge.Y2 = edge.Y1 + newDistance * Math.Sin(angleRadians);
+        }
+
+        private void UpdateStartingMatrix() {
+            var stringAdjacencyList = new Dictionary<string, HashSet<string>>();
+            foreach (Vertex key in AdjacencyList.Keys) {
+                stringAdjacencyList.Add(key.ID, AdjacencyList[key].Select(x => x.ID).ToHashSet());
+            }
+
+            Classes.Matrix matrix = new Classes.Matrix(stringAdjacencyList.Keys.ToList(), stringAdjacencyList);
+            StartMatrixTextBox.Text = matrix.ToString();
+
+            StartMatrixTextBlock.Text = $"Reflexive: {(matrix.IsReflexive? "Yes" : "No")}; Symmetric: {(matrix.IsSymmetric ? "Yes" : "No")}; Transitive: {(matrix.IsTransitive ? "Yes" : "No")}";
         }
     }
 }

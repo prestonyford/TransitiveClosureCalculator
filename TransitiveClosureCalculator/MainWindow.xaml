@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:uc="clr-namespace:TransitiveClosureCalculator.User_Controls"
         mc:Ignorable="d"
-        Title="Transitive Closure Calculator" Height="450" Width="800">
+        Title="Transitive Closure Calculator" Height="512" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
@@ -30,7 +30,52 @@
         </DockPanel>
 
         <Grid Grid.Column="1" Background="#F0F0F0">
-            
+            <Grid Margin="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <GroupBox Grid.Row="0" Header="Matrix representation of graph">
+                    <DockPanel>
+                        <TextBlock Name="StartMatrixTextBlock" DockPanel.Dock="Bottom" TextWrapping="Wrap">
+                            Reflexive: Yes; Symmetric: Yes; Transitive: Yes
+                        </TextBlock>
+                        <TextBox Name="StartMatrixTextBox" IsReadOnly="True" FontFamily="Consolas">
+                            
+                        </TextBox>
+                    </DockPanel>
+                </GroupBox>
+                <GroupBox Grid.Row="1" Header="Calculation Options" Padding="4">
+                    <DockPanel>
+                        <Grid DockPanel.Dock="Top">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <CheckBox>Make reflexive</CheckBox>
+                                <CheckBox>Make transitive</CheckBox>
+                            </StackPanel>
+                            <CheckBox Grid.Column="1">Make symmetric</CheckBox>
+                        </Grid>
+                        <Button DockPanel.Dock="Bottom" Width="64" Height="24" Margin="0 4 0 -2">Calculate!</Button>
+                    </DockPanel>
+                        
+                        
+                    
+                </GroupBox>
+                <GroupBox Grid.Row="2" Header="Resulting Matrix">
+                    <DockPanel>
+                        <TextBlock Name="ResultMatrixTextBlock" DockPanel.Dock="Bottom" TextWrapping="Wrap">
+                            Reflexive: Yes; Symmetric: Yes; Transitive: Yes
+                        </TextBlock>
+                        <TextBox Name="ResultMatrixTextBox" IsReadOnly="True" FontFamily="Consolas">
+
+                        </TextBox>
+                    </DockPanel>
+                </GroupBox>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
