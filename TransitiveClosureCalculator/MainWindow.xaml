@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:uc="clr-namespace:TransitiveClosureCalculator.User_Controls"
         mc:Ignorable="d"
-        Title="Transitive Closure Calculator" Height="512" Width="800">
+        Title="Transitive Closure Calculator by Preston Ford" Height="512" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>

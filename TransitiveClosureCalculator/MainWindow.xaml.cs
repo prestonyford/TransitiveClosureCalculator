@@ -78,6 +78,10 @@ namespace TransitiveClosureCalculator {
             ReverseAdjacencyList.Add(vertex, new List<Vertex>());
 
             vertex.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
+                if (DrawingEdge && vertex == StartingVertexEdgeDraw) {
+                    e.Handled = true;
+                    return;
+                }
                 Canvas.Children.Remove(vertex);
                 RemovedVertexIDs.Add(vertex.ID);
                 foreach (ArrowLine edge in VertexConnectingEdges[vertex]) {
@@ -299,7 +303,10 @@ namespace TransitiveClosureCalculator {
 
             ResultMatrixTextBox.Text = matrix.ToString();
             List<string> addedEdgesStrings = new List<string>(matrix.AddedEdges.Count);
-            matrix.AddedEdges.Sort((x, y) => Int32.Parse(x.Item1).CompareTo(Int32.Parse(y.Item1)));
+            matrix.AddedEdges.Sort((x, y) => Int32.Parse(x.Item2).CompareTo(Int32.Parse(y.Item2)));
+            // Stable sort
+            matrix.AddedEdges = matrix.AddedEdges.OrderBy(x => x.Item1).ToList();
+
             foreach (Tuple<string, string> pair in matrix.AddedEdges) {
                 addedEdgesStrings.Add($"({pair.Item1}, {pair.Item2})");
             }
