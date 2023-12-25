@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,10 +27,10 @@ namespace TransitiveClosureCalculator {
         private Point DragStartPos = new Point(0, 0);
         private bool DrawingEdge = false;
         private Point DrawingEdgeStartPos = new Point(0, 0);
-        private Line? prevFrameEdgeDraw = null;
+        private ArrowLine? prevFrameEdgeDraw = null;
         private Vertex? StartingVertexEdgeDraw = null;
-        private Dictionary<Vertex, List<Line>> VertexConnectingEdges = new Dictionary<Vertex, List<Line>>();
-        private Dictionary<Line, Tuple<Vertex, Vertex>> EdgesConnectingVertices = new Dictionary<Line, Tuple<Vertex, Vertex>>();
+        private Dictionary<Vertex, List<ArrowLine>> VertexConnectingEdges = new Dictionary<Vertex, List<ArrowLine>>();
+        private Dictionary<ArrowLine, Tuple<Vertex, Vertex>> EdgesConnectingVertices = new Dictionary<ArrowLine, Tuple<Vertex, Vertex>>();
         private Dictionary<Vertex, List<Vertex>> AdjacencyList = new Dictionary<Vertex, List<Vertex>>();
         private Dictionary<Vertex, List<Vertex>> ReverseAdjacencyList = new Dictionary<Vertex, List<Vertex>>();
 
@@ -71,14 +73,14 @@ namespace TransitiveClosureCalculator {
             Canvas.SetLeft(vertex, newXPos);
             Canvas.SetTop(vertex, newYPos);
 
-            VertexConnectingEdges.Add(vertex, new List<Line>());
+            VertexConnectingEdges.Add(vertex, new List<ArrowLine>());
             AdjacencyList.Add(vertex, new List<Vertex>());
             ReverseAdjacencyList.Add(vertex, new List<Vertex>());
 
             vertex.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
                 Canvas.Children.Remove(vertex);
                 RemovedVertexIDs.Add(vertex.ID);
-                foreach (Line edge in VertexConnectingEdges[vertex]) {
+                foreach (ArrowLine edge in VertexConnectingEdges[vertex]) {
                     Canvas.Children.Remove(edge);
                 }
 
@@ -109,7 +111,6 @@ namespace TransitiveClosureCalculator {
                 DragStartPos = e.GetPosition(Canvas);
             };
             vertex.MouseLeftButtonUp += (object sender, MouseButtonEventArgs e) => {
-                Dragging = false;
                 if (Math.Abs(e.GetPosition(Canvas).X - DragStartPos.X) < 10 && Math.Abs(e.GetPosition(Canvas).Y - DragStartPos.Y) < 10) {
                     if (!DrawingEdge) {
                         Console.WriteLine("Begin drawing edge");
@@ -117,24 +118,25 @@ namespace TransitiveClosureCalculator {
                         prevFrameEdgeDraw = null;
                         DrawingEdgeStartPos = new Point(Canvas.GetLeft(vertex) + vertexRadius, Canvas.GetTop(vertex) + vertexRadius);
                         StartingVertexEdgeDraw = vertex;
+                        Panel.SetZIndex(StartingVertexEdgeDraw, 2);
                     }
                     else {
                         Console.WriteLine("End drawing edge");
                         DrawingEdge = false;
                         if (prevFrameEdgeDraw != null && StartingVertexEdgeDraw != null) {
                             Canvas.Children.Remove(prevFrameEdgeDraw);
-                            Line finishedLine = DrawLine(DrawingEdgeStartPos, new Point(Canvas.GetLeft(vertex) + vertexRadius, Canvas.GetTop(vertex) + vertexRadius));
-                            finishedLine.IsHitTestVisible = true;
-                            EdgesConnectingVertices.Add(finishedLine, new Tuple<Vertex, Vertex>(StartingVertexEdgeDraw, vertex));
+                            if (AdjacencyList[StartingVertexEdgeDraw].Contains(vertex)) {
+                                return;
+                            }
+                            ArrowLine finishedArrowLine = DrawArrowLine(DrawingEdgeStartPos, new Point(Canvas.GetLeft(vertex) + vertexRadius, Canvas.GetTop(vertex) + vertexRadius));
+                            finishedArrowLine.IsHitTestVisible = true;
+                            EdgesConnectingVertices.Add(finishedArrowLine, new Tuple<Vertex, Vertex>(StartingVertexEdgeDraw, vertex));
 
                             // Right click to remove edge
-                            finishedLine.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
-                                //VertexConnectingEdges.Add(vertex, new List<Line>());
-                                //AdjacencyList.Add(vertex, new List<Vertex>());
-                                //ReverseAdjacencyList.Add(vertex, new List<Vertex>());
-                                Canvas.Children.Remove(finishedLine);
-                                Vertex v1 = EdgesConnectingVertices[finishedLine].Item1;
-                                Vertex v2 = EdgesConnectingVertices[finishedLine].Item2;
+                            finishedArrowLine.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
+                                Canvas.Children.Remove(finishedArrowLine);
+                                Vertex v1 = EdgesConnectingVertices[finishedArrowLine].Item1;
+                                Vertex v2 = EdgesConnectingVertices[finishedArrowLine].Item2;
                                 AdjacencyList[v1].Remove(v2);
                                 AdjacencyList[v2].Remove(v1);
                                 ReverseAdjacencyList[v1].Remove(v2);
@@ -146,10 +148,14 @@ namespace TransitiveClosureCalculator {
                                 return;
                             }
 
-                            VertexConnectingEdges[StartingVertexEdgeDraw].Add(finishedLine);
-                            VertexConnectingEdges[vertex].Add(finishedLine);
+                            VertexConnectingEdges[StartingVertexEdgeDraw].Add(finishedArrowLine);
+                            VertexConnectingEdges[vertex].Add(finishedArrowLine);
                             AdjacencyList[StartingVertexEdgeDraw].Add(vertex);
                             ReverseAdjacencyList[vertex].Add(StartingVertexEdgeDraw);
+
+                            Panel.SetZIndex(StartingVertexEdgeDraw, 0);
+                            Panel.SetZIndex(finishedArrowLine, -1);
+                            ShortenArrowLine(finishedArrowLine);
                         }
                     }
                 }
@@ -158,8 +164,13 @@ namespace TransitiveClosureCalculator {
             e.Handled = true;
         }
 
-        private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+        private void Canvas_MouseRightButtonUp(object sender, MouseButtonEventArgs e) {
+        }
 
+        private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+            if (Dragging) {
+                Dragging = false;
+            }
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
@@ -175,20 +186,40 @@ namespace TransitiveClosureCalculator {
                 Canvas.SetLeft(DraggedVertex, pos.X - DraggedVertex.VertexWidth / 2);
                 Canvas.SetTop(DraggedVertex, pos.Y - DraggedVertex.VertexHeight / 2);
 
-                // Removing existing lines
-                foreach (Line edge in VertexConnectingEdges[DraggedVertex]) {
+                if (Canvas.GetTop(DraggedVertex) < 0) {
+                    Canvas.SetTop(DraggedVertex, 0);
+                }
+                else if (Canvas.GetTop(DraggedVertex) > Canvas.ActualHeight - DraggedVertex.VertexHeight) {
+                    Canvas.SetTop(DraggedVertex, Canvas.ActualHeight - DraggedVertex.VertexHeight);
+                }
+                if (Canvas.GetLeft(DraggedVertex) < 0) {
+                    Canvas.SetLeft(DraggedVertex, 0);
+                }
+                else if (Canvas.GetLeft(DraggedVertex) > Canvas.ActualWidth - DraggedVertex.VertexWidth) {
+                    Canvas.SetLeft(DraggedVertex, Canvas.ActualWidth - DraggedVertex.VertexWidth);
+                }
+
+                // Removing existing ArrowLines
+                foreach (ArrowLine edge in VertexConnectingEdges[DraggedVertex]) {
                     Canvas.Children.Remove(edge);
                 }
                 VertexConnectingEdges[DraggedVertex].Clear();
 
-                // Now rerender lines
+                // Now rerender ArrowLines
                 double vertexRadius = DraggedVertex.VertexWidth / 2;
-                foreach (Vertex neighbor in AdjacencyList[DraggedVertex].Concat(ReverseAdjacencyList[DraggedVertex])) {
+                foreach (Vertex neighbor in AdjacencyList[DraggedVertex]) {
                     Point startPos = new Point(Canvas.GetLeft(neighbor) + vertexRadius, Canvas.GetTop(neighbor) + vertexRadius);
-                    Line edge = DrawLine(startPos, pos);
-                    
+                    ArrowLine edge = DrawArrowLine(pos, startPos, -1);
                     VertexConnectingEdges[neighbor].Add(edge);
                     VertexConnectingEdges[DraggedVertex].Add(edge);
+                    ShortenArrowLine(edge);
+                }
+                foreach (Vertex neighbor in ReverseAdjacencyList[DraggedVertex]) {
+                    Point startPos = new Point(Canvas.GetLeft(neighbor) + vertexRadius, Canvas.GetTop(neighbor) + vertexRadius);
+                    ArrowLine edge = DrawArrowLine(startPos, pos, -1);
+                    VertexConnectingEdges[neighbor].Add(edge);
+                    VertexConnectingEdges[DraggedVertex].Add(edge);
+                    ShortenArrowLine(edge);
                 }
             }
             else if (DrawingEdge) {
@@ -197,25 +228,34 @@ namespace TransitiveClosureCalculator {
                     Canvas.Children.Remove(prevFrameEdgeDraw);
                 }
 
-                Line edge = DrawLine(DrawingEdgeStartPos, e.GetPosition(Canvas));
+                ArrowLine edge = DrawArrowLine(DrawingEdgeStartPos, e.GetPosition(Canvas));
             }
         }
 
         // Helpers
 
-        private Line DrawLine(Point start, Point end) {
-            Line edge = new Line();
-            edge.IsHitTestVisible = false;
-            edge.Stroke = Brushes.Black;
-            edge.StrokeThickness = 3;
-            Panel.SetZIndex(edge, -1);
+        private ArrowLine DrawArrowLine(Point start, Point end, int zIndex = 1) {
+            ArrowLine edge = new ArrowLine();
+            Panel.SetZIndex(edge, zIndex);
             edge.X1 = start.X;
             edge.Y1 = start.Y;
             edge.X2 = end.X;
             edge.Y2 = end.Y;
             Canvas.Children.Add(edge);
             prevFrameEdgeDraw = edge;
+
+            double angleRadians = Math.Atan2(end.Y - start.Y, end.X - start.X);
+            double angleDegrees = angleRadians * (180 / Math.PI);
+            edge.Angle = angleDegrees;
             return edge;
+        }
+
+        private void ShortenArrowLine(ArrowLine edge) {
+            double angleRadians = Math.Atan2(edge.Y2 - edge.Y1, edge.X2 - edge.X1);
+            double distance = Math.Sqrt(Math.Pow(edge.X2 - edge.X1, 2) + Math.Pow(edge.Y2 - edge.Y1, 2));
+            double newDistance = Math.Max(0, distance - 33);
+            edge.X2 = edge.X1 + newDistance * Math.Cos(angleRadians);
+            edge.Y2 = edge.Y1 + newDistance * Math.Sin(angleRadians);
         }
     }
 }

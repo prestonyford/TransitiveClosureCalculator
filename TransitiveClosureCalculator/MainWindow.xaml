@@ -14,7 +14,7 @@
 
         <DockPanel Grid.Column="0" Margin="6">
             <StackPanel DockPanel.Dock="Top">
-                <TextBlock Text="Draw a graph in the canvas below. Right-click to add a vertex or to remove a vertex/edge. Left-click to begin drawing an edge. Left-click and hold to move a vertex." TextWrapping="Wrap" TextAlignment="Left" />
+                <TextBlock Padding="2" Text="Draw a graph in the canvas below. Right-click to add a vertex or to remove a vertex/edge. Left-click to begin drawing an edge. Left-click and hold to move a vertex." TextWrapping="Wrap" TextAlignment="Left" />
                 <GroupBox Header="Configure" Margin="0 4 0 0">
                     <StackPanel Orientation="Horizontal" Margin="6">
                         <RadioButton GroupName="DirectedGroup" Margin="0 0 10 0" IsChecked="True">Directed Graph</RadioButton>
@@ -23,13 +23,13 @@
                 </GroupBox>
             </StackPanel>
             <Border DockPanel.Dock="Bottom" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="2" Margin="0 6 0 0">
-                <Canvas Name="Canvas" Background="White" MouseMove="Canvas_MouseMove" MouseLeftButtonUp="Canvas_MouseLeftButtonUp" MouseLeftButtonDown="Canvas_MouseLeftButtonDown" MouseRightButtonDown="Canvas_MouseRightButtonDown" >
+                <Canvas Name="Canvas" Background="White" MouseMove="Canvas_MouseMove" MouseLeftButtonUp="Canvas_MouseLeftButtonUp" MouseLeftButtonDown="Canvas_MouseLeftButtonDown" MouseRightButtonDown="Canvas_MouseRightButtonDown" MouseRightButtonUp="Canvas_MouseRightButtonUp">
                     
                 </Canvas>
             </Border>
         </DockPanel>
 
-        <Grid Grid.Column="1" Background="LightGray">
+        <Grid Grid.Column="1" Background="#F0F0F0">
             
         </Grid>
     </Grid>
