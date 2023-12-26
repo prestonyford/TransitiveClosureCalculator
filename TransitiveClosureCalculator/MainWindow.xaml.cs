@@ -80,7 +80,7 @@ namespace TransitiveClosureCalculator {
 
             // Right click vertex to remove it
             vertex.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
-                if (UserIsDrawingEdge && vertex == StartingVertexEdgeDraw) {
+                if (UserIsDrawingEdge && vertex == StartingVertexEdgeDraw || UserIsDraggingVertex) {
                     e.Handled = true;
                     return;
                 }
