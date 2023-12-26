@@ -14,7 +14,7 @@
 
         <DockPanel Grid.Column="0" Margin="6">
             <StackPanel DockPanel.Dock="Top">
-                <TextBlock Padding="2" Text="Draw a graph in the canvas below. Right-click to add a vertex or to remove a vertex/edge. Left-click to begin drawing an edge. Left-click and hold to move a vertex." TextWrapping="Wrap" TextAlignment="Left" />
+                <TextBlock Padding="2" Text="Draw a graph in the canvas below. Right-click to add a vertex or to remove a vertex/edge. Left-click a vertex to begin drawing an edge. Left-click and hold to move a vertex." TextWrapping="Wrap" TextAlignment="Left" />
                 <!--<GroupBox Header="Configure" Margin="0 4 0 0">
                     <StackPanel Orientation="Horizontal" Margin="6">
                         <RadioButton GroupName="DirectedGroup" Margin="0 0 10 0" IsChecked="True">Directed Graph</RadioButton>
