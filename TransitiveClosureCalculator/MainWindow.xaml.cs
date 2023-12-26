@@ -55,6 +55,7 @@ namespace TransitiveClosureCalculator {
             Canvas.Children.Add(vertex);
             double vertexRadius = vertex.VertexWidth / 2;
 
+            // Correct positioning if out of bounds
             if (clickPos.X < vertexRadius) {
                 clickPos.X = vertexRadius;
             }
@@ -77,6 +78,7 @@ namespace TransitiveClosureCalculator {
             AdjacencyList.Add(vertex, new List<Vertex>());
             ReverseAdjacencyList.Add(vertex, new List<Vertex>());
 
+            // Right click vertex to remove it
             vertex.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
                 if (UserIsDrawingEdge && vertex == StartingVertexEdgeDraw) {
                     e.Handled = true;
@@ -107,6 +109,8 @@ namespace TransitiveClosureCalculator {
                 UpdateStartingMatrix();
                 e.Handled = true;
             };
+
+            // Save position so that upon mouse up, it can be determined it it was a click or a drag
             vertex.MouseLeftButtonDown += (object sender, MouseButtonEventArgs e) => {
                 if (!UserIsDrawingEdge) {
                     UserIsDraggingVertex = true;
@@ -114,7 +118,9 @@ namespace TransitiveClosureCalculator {
                 DraggedVertex = vertex;
                 DragStartPos = e.GetPosition(Canvas);
             };
+
             vertex.MouseLeftButtonUp += (object sender, MouseButtonEventArgs e) => {
+                // Left click another vertex while drawing edge to finish edge
                 if (Math.Abs(e.GetPosition(Canvas).X - DragStartPos.X) < 10 && Math.Abs(e.GetPosition(Canvas).Y - DragStartPos.Y) < 10) {
                     if (!UserIsDrawingEdge) {
                         Console.WriteLine("Begin drawing edge");
@@ -175,7 +181,7 @@ namespace TransitiveClosureCalculator {
                         }
                     }
                 }
-                else if (!UserIsDrawingEdge) {
+                else if (!UserIsDrawingEdge) { // Mouse is released after moving a vertex
                     // Resubscribe edges right-click handlers after they are redrawn after moving a vertex
                     foreach (UserControl edge in VertexConnectingEdges[vertex]) {
                         Vertex from = EdgesConnectingVertices[edge].Item1;
@@ -202,6 +208,7 @@ namespace TransitiveClosureCalculator {
         }
 
         private void Canvas_MouseRightButtonUp(object sender, MouseButtonEventArgs e) {
+
         }
 
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
@@ -218,11 +225,12 @@ namespace TransitiveClosureCalculator {
             if (DraggedVertex == null) {
                 return;
             }
-            if (UserIsDraggingVertex) {
+            if (UserIsDraggingVertex) { // Not super CPU friendly to move/drag a vertex if it has lots of edges
                 Point pos = e.GetPosition(Canvas);
                 Canvas.SetLeft(DraggedVertex, pos.X - DraggedVertex.VertexWidth / 2);
                 Canvas.SetTop(DraggedVertex, pos.Y - DraggedVertex.VertexHeight / 2);
 
+                // Prevent user from dragging out of bounds
                 if (Canvas.GetTop(DraggedVertex) < 0) {
                     Canvas.SetTop(DraggedVertex, 0);
                 }
@@ -243,7 +251,7 @@ namespace TransitiveClosureCalculator {
                 }
                 VertexConnectingEdges[DraggedVertex].Clear();
 
-                // Now rerender ArrowLines
+                // Now redraw ArrowLines
                 double vertexRadius = DraggedVertex.VertexWidth / 2;
                 foreach (Vertex neighbor in AdjacencyList[DraggedVertex]) {
                     if (DraggedVertex == neighbor) { // Self loop
@@ -252,8 +260,8 @@ namespace TransitiveClosureCalculator {
                         EdgesConnectingVertices.Add(selfLoop, new Tuple<Vertex, Vertex>(DraggedVertex, DraggedVertex));
                     }
                     else { // Edge to another vertex
-                        Point startPos = new Point(Canvas.GetLeft(neighbor) + vertexRadius, Canvas.GetTop(neighbor) + vertexRadius);
-                        ArrowLine edge = DrawArrowLine(pos, startPos, -1);
+                        Point endPos = new Point(Canvas.GetLeft(neighbor) + vertexRadius, Canvas.GetTop(neighbor) + vertexRadius);
+                        ArrowLine edge = DrawArrowLine(pos, endPos, -1);
                         VertexConnectingEdges[neighbor].Add(edge);
                         VertexConnectingEdges[DraggedVertex].Add(edge);
                         EdgesConnectingVertices.Add(edge, new Tuple<Vertex, Vertex>(DraggedVertex, neighbor));
