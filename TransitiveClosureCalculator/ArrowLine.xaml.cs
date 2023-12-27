@@ -28,8 +28,6 @@ namespace TransitiveClosureCalculator.User_Controls {
         public double Y1 { get; set; }
         public double X2 { get; set; }
         public double Y2 { get; set; }
-        public double ArrowX {  get; set; }
-        public double ArrowY { get; set; }
         public double Angle {  get; set; }
     }
 }

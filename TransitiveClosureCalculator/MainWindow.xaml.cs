@@ -126,7 +126,7 @@ namespace TransitiveClosureCalculator {
                         Console.WriteLine("Begin drawing edge");
                         UserIsDrawingEdge = true;
                         prevFrameEdgeDraw = null;
-                        DrawingEdgeStartPos = new Point(Canvas.GetLeft(vertex) + vertexRadius, Canvas.GetTop(vertex) + vertexRadius);
+                        DrawingEdgeStartPos = GetVertexCenterPoint(vertex);
                         StartingVertexEdgeDraw = vertex;
                         Panel.SetZIndex(StartingVertexEdgeDraw, 2);
                     }
@@ -144,25 +144,12 @@ namespace TransitiveClosureCalculator {
                                 edge = DrawSelfLoop(vertex);
                             }
                             else { // Edge to another vertex
-                                ArrowLine finishedArrowLine = DrawArrowLine(DrawingEdgeStartPos, new Point(Canvas.GetLeft(vertex) + vertexRadius, Canvas.GetTop(vertex) + vertexRadius));
+                                ArrowLine finishedArrowLine = DrawArrowLine(DrawingEdgeStartPos, GetVertexCenterPoint(vertex));
                                 ShortenArrowLine(finishedArrowLine);
                                 edge = finishedArrowLine;
                             }
-                            edge.IsHitTestVisible = true;
 
-                            // Right click to remove edge
-                            edge.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
-                                Canvas.Children.Remove(edge);
-                                Vertex v1 = EdgesConnectingVertices[edge].Item1;
-                                Vertex v2 = EdgesConnectingVertices[edge].Item2;
-                                AdjacencyList[v1].Remove(v2);
-                                AdjacencyList[v2].Remove(v1);
-                                ReverseAdjacencyList[v1].Remove(v2);
-                                ReverseAdjacencyList[v2].Remove(v1);
-                                EdgesConnectingVertices.Remove(edge);
-                                UpdateStartingMatrix();
-                                e.Handled = true;
-                            };
+                            SubscribeEdgeToRightClick(edge);
 
                             if (StartingVertexEdgeDraw == null) {
                                 return;
@@ -184,21 +171,7 @@ namespace TransitiveClosureCalculator {
                 else if (!UserIsDrawingEdge) { // Mouse is released after moving a vertex
                     // Resubscribe edges right-click handlers after they are redrawn after moving a vertex
                     foreach (UserControl edge in VertexConnectingEdges[vertex]) {
-                        Vertex from = EdgesConnectingVertices[edge].Item1;
-                        Vertex to = EdgesConnectingVertices[edge].Item2;
-                        // Console.WriteLine("Resubscribe edges connecting vertex " + from.ID + " to " + to.ID);
-                        edge.IsHitTestVisible = true;
-                        edge.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
-                            Canvas.Children.Remove(edge);
-                            foreach (Vertex v in AdjacencyList[from].Concat(ReverseAdjacencyList[to])) {
-                                VertexConnectingEdges[v].Remove(edge);
-                                EdgesConnectingVertices.Remove(edge);
-                            }
-                            AdjacencyList[from].Remove(to);
-                            ReverseAdjacencyList[to].Remove(from);
-                            UpdateStartingMatrix();
-                            e.Handled = true;
-                        };
+                        SubscribeEdgeToRightClick(edge);
                     }
                 }
             };
@@ -331,6 +304,28 @@ namespace TransitiveClosureCalculator {
             double newDistance = Math.Max(0, distance - 33);
             edge.X2 = edge.X1 + newDistance * Math.Cos(angleRadians);
             edge.Y2 = edge.Y1 + newDistance * Math.Sin(angleRadians);
+        }
+
+        private Point GetVertexCenterPoint(Vertex vertex) {
+            double vertexRadius = vertex.VertexHeight / 2;
+            return new Point(Canvas.GetLeft(vertex) + vertexRadius, Canvas.GetTop(vertex) + vertexRadius);
+        }
+
+        private void SubscribeEdgeToRightClick(UserControl edge) {
+            edge.IsHitTestVisible = true;
+            edge.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
+                Canvas.Children.Remove(edge);
+                Vertex from = EdgesConnectingVertices[edge].Item1;
+                Vertex to = EdgesConnectingVertices[edge].Item2;
+                foreach (Vertex v in AdjacencyList[from].Concat(ReverseAdjacencyList[to])) {
+                    VertexConnectingEdges[v].Remove(edge);
+                    EdgesConnectingVertices.Remove(edge);
+                }
+                AdjacencyList[from].Remove(to);
+                ReverseAdjacencyList[to].Remove(from);
+                UpdateStartingMatrix();
+                e.Handled = true;
+            };
         }
 
         private void UpdateStartingMatrix() {
