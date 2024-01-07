@@ -242,12 +242,7 @@ namespace TransitiveClosureCalculator {
                     }
                 }
                 foreach (Vertex neighbor in ReverseAdjacencyList[DraggedVertex]) {
-                    if (DraggedVertex == neighbor) { // Self loop
-                        SelfLoop selfLoop = DrawSelfLoop(DraggedVertex);
-                        VertexConnectingEdges[neighbor].Add(selfLoop);
-                        EdgesConnectingVertices.Add(selfLoop, new Tuple<Vertex, Vertex>(DraggedVertex, DraggedVertex));
-                    }
-                    else { // Edge to another vertex
+                    if (DraggedVertex != neighbor) { // Edge to another vertex (self loops already handled in forward list)
                         Point startPos = new Point(Canvas.GetLeft(neighbor) + vertexRadius, Canvas.GetTop(neighbor) + vertexRadius);
                         ArrowLine edge = DrawArrowLine(startPos, pos, -1);
                         VertexConnectingEdges[neighbor].Add(edge);
