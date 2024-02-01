@@ -23,9 +23,7 @@
                 </GroupBox>-->
             </StackPanel>
             <Border DockPanel.Dock="Bottom" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="2" Margin="0 6 0 0">
-                <Canvas Name="Canvas" Background="White" MouseMove="Canvas_MouseMove" MouseLeftButtonUp="Canvas_MouseLeftButtonUp" MouseLeftButtonDown="Canvas_MouseLeftButtonDown" MouseRightButtonDown="Canvas_MouseRightButtonDown" MouseRightButtonUp="Canvas_MouseRightButtonUp">
-                    
-                </Canvas>
+                <uc:GraphCanvas />
             </Border>
         </DockPanel>
 

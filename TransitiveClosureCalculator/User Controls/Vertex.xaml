@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:TransitiveClosureCalculator"
+             xmlns:local="clr-namespace:TransitiveClosureCalculator.User_Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid MouseRightButtonDown="Grid_MouseRightButtonDown">
-        <Ellipse Height="{Binding VertexHeight}" Width="{Binding VertexWidth}" Stroke="Blue" StrokeThickness="2" Fill="LightBlue" />
+        <Ellipse Height="{x:Static local:Vertex.Diameter}" Width="{x:Static local:Vertex.Diameter}" Stroke="Blue" StrokeThickness="2" Fill="LightBlue" />
         <TextBlock Text="{Binding ID}" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
     </Grid>
 </UserControl>

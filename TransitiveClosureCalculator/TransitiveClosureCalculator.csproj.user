@@ -7,27 +7,33 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="ArrowLine.xaml.cs">
+    <Compile Update="User Controls\Edges\ArrowLine.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="SelfLoop.xaml.cs">
+    <Compile Update="User Controls\GraphCanvas.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Vertex.xaml.cs">
+    <Compile Update="User Controls\Edges\SelfLoop.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="User Controls\Vertex.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="ArrowLine.xaml">
+    <Page Update="User Controls\Edges\ArrowLine.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="User Controls\GraphCanvas.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="SelfLoop.xaml">
+    <Page Update="User Controls\Edges\SelfLoop.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Vertex.xaml">
+    <Page Update="User Controls\Vertex.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

@@ -18,17 +18,15 @@ namespace TransitiveClosureCalculator.User_Controls {
     /// Interaction logic for Vertex.xaml
     /// </summary>
     public partial class Vertex : UserControl {
+
+        public static double Diameter = 50;
         public Vertex() {
             InitializeComponent();
             this.DataContext = this;
             this.ID = "?";
-            this.VertexHeight = 50;
-            this.VertexWidth = 50;
         }
 
         public string ID { get; set; }
-        public double VertexHeight { get; set; }
-        public double VertexWidth { get; set; }
 
         // public event EventHandler VertexRightClicked;
 
