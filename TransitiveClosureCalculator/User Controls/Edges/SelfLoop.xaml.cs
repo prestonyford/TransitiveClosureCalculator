@@ -21,6 +21,7 @@ namespace TransitiveClosureCalculator.User_Controls.Edges {
     public partial class SelfLoop : Edge {
         public SelfLoop() : base() {
             InitializeComponent();
+            DataContext = this;
         }
 
         public override event PropertyChangedEventHandler? PropertyChanged;

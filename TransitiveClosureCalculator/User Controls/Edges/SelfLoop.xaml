@@ -8,28 +8,30 @@
         mc:Ignorable="d" 
         d:DesignHeight="450" d:DesignWidth="800">
     <Canvas>
-        <Path Stroke="Black" StrokeThickness="3">
-            <Path.Data>
-                <PathGeometry>
-                    <PathGeometry.Figures>
-                        <PathFigure StartPoint="0,-13">
-                            <PathFigure.Segments>
-                                <ArcSegment Point="22,17" Size="20,20" SweepDirection="Clockwise" IsLargeArc="True"/>
-                            </PathFigure.Segments>
-                        </PathFigure>
-                    </PathGeometry.Figures>
-                </PathGeometry>
-            </Path.Data>
-        </Path>
-        <Polygon x:Name="Arrow" Points="-5,-5 8,0 -5,5" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Top="-9" >
-            <Polygon.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform Angle="90"/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Polygon.RenderTransform>
-        </Polygon>
+        <Grid Canvas.Left="{Binding X2}" Canvas.Top="{Binding Y2}">
+            <Path Stroke="Black" StrokeThickness="3">
+                <Path.Data>
+                    <PathGeometry>
+                        <PathGeometry.Figures>
+                            <PathFigure StartPoint="0,-13">
+                                <PathFigure.Segments>
+                                    <ArcSegment Point="22,17" Size="20,20" SweepDirection="Clockwise" IsLargeArc="True"/>
+                                </PathFigure.Segments>
+                            </PathFigure>
+                        </PathGeometry.Figures>
+                    </PathGeometry>
+                </Path.Data>
+            </Path>
+            <Polygon x:Name="Arrow" Points="-5,-5 8,0 -5,5" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Top="-9" >
+                <Polygon.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="90"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Polygon.RenderTransform>
+            </Polygon>
+        </Grid>
     </Canvas>
 </local:Edge>
