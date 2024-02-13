@@ -8,14 +8,14 @@
         mc:Ignorable="d" 
         d:DesignHeight="450" d:DesignWidth="800">
     <Canvas>
-        <Grid Canvas.Left="{Binding X2}" Canvas.Top="{Binding Y2}">
+        <Grid>
             <Path Stroke="Black" StrokeThickness="3">
                 <Path.Data>
                     <PathGeometry>
                         <PathGeometry.Figures>
-                            <PathFigure StartPoint="0,-13">
+                            <PathFigure StartPoint="50,0">
                                 <PathFigure.Segments>
-                                    <ArcSegment Point="22,17" Size="20,20" SweepDirection="Clockwise" IsLargeArc="True"/>
+                                    <ArcSegment Point="0,-50" Size="50,50" SweepDirection="Counterclockwise" IsLargeArc="True"/>
                                 </PathFigure.Segments>
                             </PathFigure>
                         </PathGeometry.Figures>

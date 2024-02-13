@@ -64,11 +64,8 @@ namespace TransitiveClosureCalculator.User_Controls {
             }
             return res;
         }
-        /*private Point SnapEdgePointToVertex(Vertex vertex) {
-            return new Point(Canvas.GetLeft(vertex) + Vertex.Diameter / 2, Canvas.GetTop(vertex) + Vertex.Diameter / 2);
-        }*/
         private Point GetVertexCoords(Vertex vertex) {
-            return new Point(Canvas.GetLeft(vertex) + Vertex.Diameter / 2, Canvas.GetTop(vertex) + Vertex.Diameter / 2);
+            return new Point(Canvas.GetLeft(vertex), Canvas.GetTop(vertex));
         }
 
         private void AddControl(UserControl control, Point pos) {
@@ -165,38 +162,34 @@ namespace TransitiveClosureCalculator.User_Controls {
             UserIsDrawingEdge = true;
             StartingVertexEdgeDraw = start;
             ArrowLine newEdge = new ArrowLine();
-            newEdge.SetStartPoint(GetVertexCoords(start));
+            newEdge.SnapStartToVertexPoint(GetVertexCoords(start));
             newEdge.SnapEndToVertexPoint(GetVertexCoords(start));
             Canvas.Children.Add(newEdge);
-            Canvas.SetLeft(newEdge, 0);
-            Canvas.SetTop(newEdge, 0);
             DrawnEdge = newEdge;
         }
 
         private void EndDrawingEdge(Vertex end) {
+            if (DrawnEdge == null) return;
             UserIsDrawingEdge = false;
+
             double left = Canvas.GetLeft(end);
             double top = Canvas.GetTop(end);
-            // Normal line edge
-            if (StartingVertexEdgeDraw != end && DrawnEdge != null) {
-                // Snap the arrow to the Vertex and change its length to match
-                DrawnEdge.SnapEndToVertexPoint(new Point(left, top));
-                double angleRadians = Math.Atan2(DrawnEdge.Y2 - DrawnEdge.Y1, DrawnEdge.X2 - DrawnEdge.X1);
-                double distance = Math.Sqrt(Math.Pow(DrawnEdge.X2 - DrawnEdge.X1, 2) + Math.Pow(DrawnEdge.Y2 - DrawnEdge.Y1, 2));
-                double newDistance = Math.Max(0, distance - 33);
-                DrawnEdge.X2 = DrawnEdge.X1 + newDistance * Math.Cos(angleRadians);
-                DrawnEdge.Y2 = DrawnEdge.Y1 + newDistance * Math.Sin(angleRadians);
-            }
+
             // Self loop edge
-            else if (StartingVertexEdgeDraw == end) {
+            // Remove the existing edge to replace with self loop
+            if (StartingVertexEdgeDraw == end) {
                 // Remove the arrow line
                 Canvas.Children.Remove(DrawnEdge);
                 DrawnEdge = new SelfLoop();
                 Canvas.Children.Add(DrawnEdge);
-                DrawnEdge.SnapEndToVertexPoint(new Point(left, top));
+                DrawnEdge.SnapEndToVertexPoint(GetVertexCoords(end));
                 // DrawSelfLoop(end);
 
             }
+
+            // Normal line edge
+            // Snap the arrow to the Vertex and change its length to match
+            DrawnEdge.SnapEndToVertexPoint(GetVertexCoords(end));
 
             // Add to dictionaries
             // Should never be null at this point but Visual Studio keeps yelling at me
@@ -265,7 +258,7 @@ namespace TransitiveClosureCalculator.User_Controls {
             }
             // Edge draw
             else if (UserIsDrawingEdge && DrawnEdge != null) {
-                DrawnEdge.SetEndPoint(mousePos);
+                DrawnEdge.EndPoint = mousePos;
             }
         }
     }

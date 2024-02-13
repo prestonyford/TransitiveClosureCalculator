@@ -8,8 +8,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Canvas>
-        <Line Name="Line" Stroke="Black" StrokeThickness="3" X1="{Binding X1}" Y1="{Binding Y1}" X2="{Binding X2}" Y2="{Binding Y2}"></Line>
-        <Polygon Name="Arrow" Points="-5,-5 8,0, -5,5" Stroke="Black" Fill="Black" Canvas.Left="{Binding X2}" Canvas.Top="{Binding Y2}" >
+        <Line Name="Line" Stroke="Black" StrokeThickness="3" X1="{Binding StartPoint.X}" Y1="{Binding StartPoint.Y}" X2="{Binding EndPoint.X}" Y2="{Binding EndPoint.Y}"></Line>
+        <Polygon Name="Arrow" Points="-5,-5 8,0, -5,5" Stroke="Black" Fill="Black" Canvas.Left="{Binding EndPoint.X}" Canvas.Top="{Binding EndPoint.Y}" >
             <Polygon.RenderTransform>
                 <RotateTransform Angle="{Binding Angle}" />
             </Polygon.RenderTransform>

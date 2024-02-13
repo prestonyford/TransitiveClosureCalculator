@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,65 +11,46 @@ using Point = System.Windows.Point;
 
 namespace TransitiveClosureCalculator.User_Controls.Edges {
     public abstract class Edge : UserControl, INotifyPropertyChanged {
-        protected double x1;
-        protected double y1;
-        protected double x2;
-        protected double y2;
+        protected Point startPoint;
+        protected Point endPoint;
         protected double angle;
 
         public Edge() {
             IsHitTestVisible = false;
         }
 
-        public void SetStartPoint(Point p) {
-            X1 = p.X;
-            Y1 = p.Y;
-        }
-        public void SetEndPoint(Point p) {
-            X2 = p.X;
-            Y2 = p.Y;
-        }
-        public void SnapEndToVertexPoint(Point p) {
+        public virtual void SnapStartToVertexPoint(Point p) {
             Point corrected = new Point(p.X + Vertex.Diameter / 2.0, p.Y + Vertex.Diameter / 2.0);
-            SetEndPoint(corrected);
+            StartPoint = corrected;
+        }
+        public virtual void SnapEndToVertexPoint(Point p) {
+            Point corrected = new Point(p.X + Vertex.Diameter / 2.0, p.Y + Vertex.Diameter / 2.0);
+            EndPoint = corrected;
+            double angleRadians = Math.Atan2(EndPoint.Y - StartPoint.Y, EndPoint.X - StartPoint.X);
+            double distance = Math.Sqrt(Math.Pow(EndPoint.X - StartPoint.X, 2) + Math.Pow(EndPoint.Y - StartPoint.Y, 2));
+            double newDistance = Math.Max(0, distance - 33);
+            EndPoint = new Point(StartPoint.X + newDistance * Math.Cos(angleRadians), StartPoint.Y + newDistance * Math.Sin(angleRadians));
         }
 
-        public double X1 {
-            get { return x1; }
+        public Point StartPoint {
+            get { return startPoint; }
             set {
-                if (x1 != value) {
-                    x1 = value;
-                    OnPropertyChanged(nameof(X1));
+                if (startPoint != value) {
+                    startPoint = value;
+                    OnPropertyChanged(nameof(StartPoint));
                 }
             }
         }
-        public double Y1 {
-            get { return y1; }
+        public Point EndPoint {
+            get { return endPoint; }
             set {
-                if (y1 != value) {
-                    y1 = value;
-                    OnPropertyChanged(nameof(Y1));
+                if (endPoint != value) {
+                    endPoint = value;
+                    OnPropertyChanged(nameof(EndPoint));
                 }
             }
         }
-        public double X2 {
-            get { return x2; }
-            set {
-                if (x2 != value) {
-                    x2 = value;
-                    OnPropertyChanged(nameof(X2));
-                }
-            }
-        }
-        public double Y2 {
-            get { return y2; }
-            set {
-                if (y2 != value) {
-                    y2 = value;
-                    OnPropertyChanged(nameof(Y2));
-                }
-            }
-        }
+
         public double Angle {
             get { return angle; }
             set {

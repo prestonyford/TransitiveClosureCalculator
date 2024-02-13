@@ -19,9 +19,21 @@ namespace TransitiveClosureCalculator.User_Controls.Edges {
     /// Interaction logic for SelfLoop.xaml
     /// </summary>
     public partial class SelfLoop : Edge {
+        
         public SelfLoop() : base() {
             InitializeComponent();
             DataContext = this;
+        }
+
+        
+
+        public override void SnapStartToVertexPoint(Point p) {
+            Point corrected = new Point(p.X + Vertex.Diameter / 2.0 + 50, p.Y + Vertex.Diameter / 2.0 + 0);
+            StartPoint = corrected;
+        }
+        public override void SnapEndToVertexPoint(Point p) {
+            Point corrected = new Point(p.X + Vertex.Diameter / 2.0 - 0, p.Y + Vertex.Diameter / 2.0 - 50);
+            EndPoint = corrected;
         }
 
         public override event PropertyChangedEventHandler? PropertyChanged;
