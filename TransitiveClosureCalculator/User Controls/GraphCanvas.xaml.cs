@@ -34,7 +34,6 @@ namespace TransitiveClosureCalculator.User_Controls {
         private Vertex? StartingVertexEdgeDraw = null;
 
         // Management of controls in dictionaries
-
         // Key: Vertex; Value: Edges connected to it
         private Dictionary<Vertex, List<Edge>> VertexConnectingEdges = new Dictionary<Vertex, List<Edge>>();
         // Key: Edge; Value: Ordered tuple, first element is from Vertex, second is to Vertex
@@ -42,8 +41,12 @@ namespace TransitiveClosureCalculator.User_Controls {
         private Dictionary<Vertex, List<Vertex>> AdjacencyList = new Dictionary<Vertex, List<Vertex>>();
         private Dictionary<Vertex, List<Vertex>> ReverseAdjacencyList = new Dictionary<Vertex, List<Vertex>>();
 
-        public GraphCanvas() {
+        // Graph Update Handler
+        readonly IGraphUpdateHandler UpdateHandler;
+
+        public GraphCanvas(IGraphUpdateHandler handler) {
             InitializeComponent();
+            UpdateHandler = handler;
         }
 
         private Point CorrectPoint(Point pos) {
@@ -68,7 +71,7 @@ namespace TransitiveClosureCalculator.User_Controls {
             return new Point(Canvas.GetLeft(vertex), Canvas.GetTop(vertex));
         }
 
-        private void AddControl(UserControl control, Point pos) {
+        private void AddVertex(UserControl control, Point pos) {
             Point point = CorrectPoint(pos);
 
             Canvas.Children.Add(control);
@@ -80,7 +83,6 @@ namespace TransitiveClosureCalculator.User_Controls {
             foreach (UserControl control in controls) {
                 Canvas.Children.Remove(control);
             }
-            // TODO: FIRE EVENT TO UPDATE STARTING MATRIX
         }
 
         private void MoveVertex(Vertex vertex, Point pos) {
@@ -123,6 +125,8 @@ namespace TransitiveClosureCalculator.User_Controls {
             }
             AdjacencyList.Remove(vertex);
             ReverseAdjacencyList.Remove(vertex);
+
+            UpdateHandler.HandleCanvasUpdate(StringAdjacencyList());
 
             e.Handled = true;
         }
@@ -168,7 +172,12 @@ namespace TransitiveClosureCalculator.User_Controls {
             }
             AdjacencyList[from].Remove(to);
             ReverseAdjacencyList[to].Remove(from);
+
             RemoveControls(new UserControl[] { edge });
+
+            // Call update handler
+            UpdateHandler.HandleCanvasUpdate(StringAdjacencyList());
+
             e.Handled = true;
         }
 
@@ -195,7 +204,8 @@ namespace TransitiveClosureCalculator.User_Controls {
             // Remove the existing edge to replace with self loop
             if (StartingVertexEdgeDraw == end) {
                 // Remove the arrow line
-                Canvas.Children.Remove(DrawnEdge);
+                // Canvas.Children.Remove(DrawnEdge);
+                RemoveControls(new Edge[] { DrawnEdge });
                 DrawnEdge = DrawSelfLoop(end);
             }
             else {
@@ -220,6 +230,9 @@ namespace TransitiveClosureCalculator.User_Controls {
                 DrawnEdge.MouseRightButtonDown += EdgeRightClick;
             }
 
+            // Call update handler
+            UpdateHandler.HandleCanvasUpdate(StringAdjacencyList());
+
             // Finally,
             Panel.SetZIndex(StartingVertexEdgeDraw, 0);
             Panel.SetZIndex(DrawnEdge, -1);
@@ -241,7 +254,7 @@ namespace TransitiveClosureCalculator.User_Controls {
             var clickPos = e.GetPosition(Canvas);
             var vertex = new Vertex();
             vertex.ID = IDChooser.GetID();
-            AddControl(vertex, clickPos);
+            AddVertex(vertex, clickPos);
             VertexConnectingEdges.Add(vertex, new List<Edge>());
             AdjacencyList.Add(vertex, new List<Vertex>());
             ReverseAdjacencyList.Add(vertex, new List<Vertex>());
@@ -251,9 +264,9 @@ namespace TransitiveClosureCalculator.User_Controls {
             // Left click vertex
             vertex.MouseLeftButtonDown += VertexLeftClickDown;
             vertex.MouseLeftButtonUp += VertexLeftClickUp;
+            // Call update handler
+            UpdateHandler.HandleCanvasUpdate(StringAdjacencyList());
 
-            /*
-            UpdateStartingMatrix();*/
             e.Handled = true;
         }
 
@@ -279,9 +292,16 @@ namespace TransitiveClosureCalculator.User_Controls {
             }
             // Edge draw
             else if (UserIsDrawingEdge && DrawnEdge != null) {
-                // DrawnEdge.EndPoint = mousePos;
                 DrawnEdge.SnapEndToExactPoint(mousePos);
             }
+        }
+
+        private Dictionary<string, HashSet<string>> StringAdjacencyList() {
+            var stringAdjacencyList = new Dictionary<string, HashSet<string>>();
+            foreach (Vertex key in AdjacencyList.Keys) {
+                stringAdjacencyList.Add(key.ID, AdjacencyList[key].Select(x => x.ID).ToHashSet());
+            }
+            return stringAdjacencyList;
         }
     }
 }

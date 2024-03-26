@@ -18,92 +18,30 @@ namespace TransitiveClosureCalculator {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window {
+    public partial class MainWindow : Window, IGraphUpdateHandler {
 
         public MainWindow() {
             InitializeComponent();
+            GraphCanvas canvas = new GraphCanvas(this);
+            CanvasContainer.Child = canvas;
         }
 
+        public void HandleCanvasUpdate(Dictionary<string, HashSet<string>> stringAdjacencyList) {
+            UpdateStartingMatrix(stringAdjacencyList);
+        }
 
         private void Calculate_Button_Click(object sender, RoutedEventArgs e) {
             // UpdateResultingMatrix();
         }
 
-        // Helpers
-
-        /*private ArrowLine DrawArrowLine(Point start, Point end, int zIndex = 1) {
-            ArrowLine edge = new ArrowLine();
-            Panel.SetZIndex(edge, zIndex);
-            edge.X1 = start.X;
-            edge.Y1 = start.Y;
-            edge.X2 = end.X;
-            edge.Y2 = end.Y;
-            Canvas.Children.Add(edge);
-            prevFrameEdgeDraw = edge;
-
-            double angleRadians = Math.Atan2(end.Y - start.Y, end.X - start.X);
-            double angleDegrees = angleRadians * (180 / Math.PI);
-            edge.Angle = angleDegrees;
-            return edge;
-        }
-
-        private SelfLoop DrawSelfLoop(Vertex vertex) {
-            SelfLoop selfLoop = new SelfLoop();
-            Panel.SetZIndex(selfLoop, 2);
-            Canvas.SetLeft(selfLoop, Canvas.GetLeft(vertex) + vertex.ActualWidth / 2);
-            Canvas.SetTop(selfLoop, Canvas.GetTop(vertex));
-            Canvas.Children.Add(selfLoop);
-            return selfLoop;
-        }
-
-        private void ShortenArrowLine(ArrowLine edge) {
-            double angleRadians = Math.Atan2(edge.Y2 - edge.Y1, edge.X2 - edge.X1);
-            double distance = Math.Sqrt(Math.Pow(edge.X2 - edge.X1, 2) + Math.Pow(edge.Y2 - edge.Y1, 2));
-            double newDistance = Math.Max(0, distance - 33);
-            edge.X2 = edge.X1 + newDistance * Math.Cos(angleRadians);
-            edge.Y2 = edge.Y1 + newDistance * Math.Sin(angleRadians);
-        }
-
-        private Point GetVertexCenterPoint(Vertex vertex) {
-            double vertexRadius = vertex.VertexHeight / 2;
-            return new Point(Canvas.GetLeft(vertex) + vertexRadius, Canvas.GetTop(vertex) + vertexRadius);
-        }
-
-        private void SubscribeEdgeToRightClick(UserControl edge) {
-            edge.IsHitTestVisible = true;
-            edge.MouseRightButtonDown += (object sender, MouseButtonEventArgs e) => {
-                Canvas.Children.Remove(edge);
-                Vertex from = EdgesConnectingVertices[edge].Item1;
-                Vertex to = EdgesConnectingVertices[edge].Item2;
-                foreach (Vertex v in AdjacencyList[from].Concat(ReverseAdjacencyList[to])) {
-                    VertexConnectingEdges[v].Remove(edge);
-                    EdgesConnectingVertices.Remove(edge);
-                }
-                AdjacencyList[from].Remove(to);
-                ReverseAdjacencyList[to].Remove(from);
-                UpdateStartingMatrix();
-                e.Handled = true;
-            };
-        }
-
-        private void UpdateStartingMatrix() {
-            var stringAdjacencyList = new Dictionary<string, HashSet<string>>();
-            foreach (Vertex key in AdjacencyList.Keys) {
-                stringAdjacencyList.Add(key.ID, AdjacencyList[key].Select(x => x.ID).ToHashSet());
-            }
-
+        private void UpdateStartingMatrix(Dictionary<string, HashSet<string>> stringAdjacencyList) {
             Classes.Matrix matrix = new Classes.Matrix(stringAdjacencyList.Keys.ToList(), stringAdjacencyList);
 
             StartMatrixTextBox.Text = matrix.ToString();
             StartMatrixTextBlock.Text = $"Reflexive: {(matrix.IsReflexive ? "Yes" : "No")}; Symmetric: {(matrix.IsSymmetric ? "Yes" : "No")}; Transitive: {(matrix.IsTransitive ? "Yes" : "No")}";
         }
 
-        private void UpdateResultingMatrix() {
-            var stringAdjacencyList = new Dictionary<string, HashSet<string>>();
-            foreach (Vertex key in AdjacencyList.Keys) {
-                stringAdjacencyList.Add(key.ID, AdjacencyList[key].Select(x => x.ID).ToHashSet());
-            }
-
+        private void UpdateResultingMatrixDictionary(Dictionary<string, HashSet<string>> stringAdjacencyList) {
             Classes.Matrix matrix = new Classes.Matrix(stringAdjacencyList.Keys.ToList(), stringAdjacencyList);
 
             if (ReflexiveCheckBox.IsChecked == true) {
@@ -127,6 +65,6 @@ namespace TransitiveClosureCalculator {
             }
             ResultMatrixAddedEdges.Text = $"Added edges: {string.Join(", ", addedEdgesStrings)}";
             ResultMatrixTextBlock.Text = $"Reflexive: {(matrix.IsReflexive ? "Yes" : "No")}; Symmetric: {(matrix.IsSymmetric ? "Yes" : "No")}; Transitive: {(matrix.IsTransitive ? "Yes" : "No")}";
-        }*/
+        }
     }
 }

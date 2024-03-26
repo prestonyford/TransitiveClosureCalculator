@@ -22,8 +22,8 @@
                     </StackPanel>
                 </GroupBox>-->
             </StackPanel>
-            <Border DockPanel.Dock="Bottom" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="2" Margin="0 6 0 0">
-                <uc:GraphCanvas />
+            <Border x:Name="CanvasContainer" DockPanel.Dock="Bottom" BorderBrush="DarkGray" BorderThickness="2" CornerRadius="2" Margin="0 6 0 0">
+                
             </Border>
         </DockPanel>
 
