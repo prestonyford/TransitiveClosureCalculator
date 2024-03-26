@@ -20,6 +20,8 @@ namespace TransitiveClosureCalculator {
     /// </summary>
     public partial class MainWindow : Window, IGraphUpdateHandler {
 
+        private Dictionary<string, HashSet<string>> CurrentStringAdjacencyList = new Dictionary<string, HashSet<string>>();
+
         public MainWindow() {
             InitializeComponent();
             GraphCanvas canvas = new GraphCanvas(this);
@@ -31,18 +33,19 @@ namespace TransitiveClosureCalculator {
         }
 
         private void Calculate_Button_Click(object sender, RoutedEventArgs e) {
-            // UpdateResultingMatrix();
+            UpdateResultingMatrix();
         }
 
         private void UpdateStartingMatrix(Dictionary<string, HashSet<string>> stringAdjacencyList) {
+            CurrentStringAdjacencyList = stringAdjacencyList;
             Classes.Matrix matrix = new Classes.Matrix(stringAdjacencyList.Keys.ToList(), stringAdjacencyList);
 
             StartMatrixTextBox.Text = matrix.ToString();
             StartMatrixTextBlock.Text = $"Reflexive: {(matrix.IsReflexive ? "Yes" : "No")}; Symmetric: {(matrix.IsSymmetric ? "Yes" : "No")}; Transitive: {(matrix.IsTransitive ? "Yes" : "No")}";
         }
 
-        private void UpdateResultingMatrixDictionary(Dictionary<string, HashSet<string>> stringAdjacencyList) {
-            Classes.Matrix matrix = new Classes.Matrix(stringAdjacencyList.Keys.ToList(), stringAdjacencyList);
+        private void UpdateResultingMatrix() {
+            Classes.Matrix matrix = new Classes.Matrix(CurrentStringAdjacencyList.Keys.ToList(), CurrentStringAdjacencyList);
 
             if (ReflexiveCheckBox.IsChecked == true) {
                 matrix.MakeReflexive();

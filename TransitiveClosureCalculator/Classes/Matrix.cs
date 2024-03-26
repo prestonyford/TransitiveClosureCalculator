@@ -98,7 +98,7 @@ namespace TransitiveClosureCalculator.Classes {
                         foreach (string j in Vertices) {
                             if (AdjacencyList[i].Contains(k) && AdjacencyList[k].Contains(j)) {
                                 if (!AdjacencyList[i].Contains(j)) {
-                                    Console.WriteLine($"Does not satisfy ({i}, {j})");
+                                    // Console.WriteLine($"Does not satisfy ({i}, {j})");
                                     return false;
                                 }
                             }
