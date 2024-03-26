@@ -180,16 +180,13 @@ namespace TransitiveClosureCalculator.User_Controls {
             if (StartingVertexEdgeDraw == end) {
                 // Remove the arrow line
                 Canvas.Children.Remove(DrawnEdge);
-                DrawnEdge = new SelfLoop();
-                Canvas.Children.Add(DrawnEdge);
-                DrawnEdge.SnapEndToVertexPoint(GetVertexCoords(end));
-                // DrawSelfLoop(end);
-
+                DrawnEdge = DrawSelfLoop(end);
             }
-
-            // Normal line edge
-            // Snap the arrow to the Vertex and change its length to match
-            DrawnEdge.SnapEndToVertexPoint(GetVertexCoords(end));
+            else {
+                // Normal line edge
+                // Snap the arrow to the Vertex and change its length to match
+                DrawnEdge.SnapEndToVertexPoint(GetVertexCoords(end));
+            }
 
             // Add to dictionaries
             // Should never be null at this point but Visual Studio keeps yelling at me
@@ -209,8 +206,9 @@ namespace TransitiveClosureCalculator.User_Controls {
         private SelfLoop DrawSelfLoop(Vertex vertex) {
             SelfLoop selfLoop = new SelfLoop();
             Panel.SetZIndex(selfLoop, 2);
-            Canvas.SetLeft(selfLoop, Canvas.GetLeft(vertex) + vertex.ActualWidth / 2);
-            Canvas.SetTop(selfLoop, Canvas.GetTop(vertex));
+            Point vertexCoord = GetVertexCoords(vertex);
+            selfLoop.SnapStartToVertexPoint(vertexCoord);
+            selfLoop.SnapEndToVertexPoint(vertexCoord);
             Canvas.Children.Add(selfLoop);
             return selfLoop;
         }

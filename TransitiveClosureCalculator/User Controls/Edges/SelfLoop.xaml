@@ -4,34 +4,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-        xmlns:local="clr-namespace:TransitiveClosureCalculator.User_Controls.Edges"
-        mc:Ignorable="d" 
+        xmlns:local="clr-namespace:TransitiveClosureCalculator.User_Controls.Edges" d:DataContext="{d:DesignInstance Type=local:SelfLoop}"
+    mc:Ignorable="d" 
         d:DesignHeight="450" d:DesignWidth="800">
     <Canvas>
-        <Grid>
-            <Path Stroke="Black" StrokeThickness="3">
-                <Path.Data>
-                    <PathGeometry>
-                        <PathGeometry.Figures>
-                            <PathFigure StartPoint="50,0">
-                                <PathFigure.Segments>
-                                    <ArcSegment Point="0,-50" Size="50,50" SweepDirection="Counterclockwise" IsLargeArc="True"/>
-                                </PathFigure.Segments>
-                            </PathFigure>
-                        </PathGeometry.Figures>
-                    </PathGeometry>
-                </Path.Data>
-            </Path>
-            <Polygon x:Name="Arrow" Points="-5,-5 8,0 -5,5" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Top" Canvas.Top="-9" >
-                <Polygon.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform Angle="90"/>
-                        <TranslateTransform/>
-                    </TransformGroup>
-                </Polygon.RenderTransform>
-            </Polygon>
-        </Grid>
+        <Path Stroke="Black" StrokeThickness="3">
+            <Path.Data>
+                <PathGeometry>
+                    <PathGeometry.Figures>
+                        <PathFigure StartPoint="{Binding StartPoint}">
+                            <PathFigure.Segments>
+                                <ArcSegment Point="{Binding EndPoint}" Size="25,25" SweepDirection="Counterclockwise" IsLargeArc="True"/>
+                            </PathFigure.Segments>
+                        </PathFigure>
+                    </PathGeometry.Figures>
+                </PathGeometry>
+            </Path.Data>
+        </Path>
+        <Polygon x:Name="Arrow" Points="{Binding PolygonPoints}" Stroke="Black" Fill="Black" HorizontalAlignment="Center" VerticalAlignment="Top" >
+            <Polygon.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Polygon.RenderTransform>
+        </Polygon>
     </Canvas>
 </local:Edge>
