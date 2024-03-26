@@ -32,7 +32,6 @@ namespace TransitiveClosureCalculator.User_Controls.Edges {
             set {
                 if (polygonPoints != value) {
                     polygonPoints = value;
-                    Console.WriteLine(polygonPoints);
                     OnPropertyChanged(nameof(PolygonPoints));
                 }
             }

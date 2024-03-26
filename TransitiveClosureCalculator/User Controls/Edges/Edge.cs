@@ -30,6 +30,20 @@ namespace TransitiveClosureCalculator.User_Controls.Edges {
             double distance = Math.Sqrt(Math.Pow(EndPoint.X - StartPoint.X, 2) + Math.Pow(EndPoint.Y - StartPoint.Y, 2));
             double newDistance = Math.Max(0, distance - 33);
             EndPoint = new Point(StartPoint.X + newDistance * Math.Cos(angleRadians), StartPoint.Y + newDistance * Math.Sin(angleRadians));
+
+            double angleDegrees = angleRadians * (180 / Math.PI);
+            Angle = angleDegrees;
+        }
+
+        public virtual void SnapEndToExactPoint(Point p) {
+            Point corrected = new Point(p.X, p.Y);
+            EndPoint = corrected;
+            double angleRadians = Math.Atan2(EndPoint.Y - StartPoint.Y, EndPoint.X - StartPoint.X);
+            double distance = Math.Sqrt(Math.Pow(EndPoint.X - StartPoint.X, 2) + Math.Pow(EndPoint.Y - StartPoint.Y, 2));
+            EndPoint = new Point(StartPoint.X + distance * Math.Cos(angleRadians), StartPoint.Y + distance * Math.Sin(angleRadians));
+
+            double angleDegrees = angleRadians * (180 / Math.PI);
+            Angle = angleDegrees;
         }
 
         public Point StartPoint {

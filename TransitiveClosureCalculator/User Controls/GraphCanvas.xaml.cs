@@ -95,9 +95,9 @@ namespace TransitiveClosureCalculator.User_Controls {
                 Vertex start = pair.Item1;
                 Vertex end = pair.Item2;
 
-                if (ReferenceEquals(vertex, start)) {
-                    /*edge.X1*/
-                }
+                edge.SnapStartToVertexPoint(GetVertexCoords(start));
+                edge.SnapEndToVertexPoint(GetVertexCoords(end));
+                // edge.Angle = 
             }
         }
 
@@ -158,6 +158,20 @@ namespace TransitiveClosureCalculator.User_Controls {
             }
         }
 
+        private void EdgeRightClick(object sender, MouseButtonEventArgs e) {
+            Edge edge = (Edge)sender;
+            Vertex from = EdgesConnectingVertices[edge].Item1;
+            Vertex to = EdgesConnectingVertices[edge].Item2;
+            foreach (Vertex v in AdjacencyList[from].Concat(ReverseAdjacencyList[to])) {
+                VertexConnectingEdges[v].Remove(edge);
+                EdgesConnectingVertices.Remove(edge);
+            }
+            AdjacencyList[from].Remove(to);
+            ReverseAdjacencyList[to].Remove(from);
+            RemoveControls(new UserControl[] { edge });
+            e.Handled = true;
+        }
+
         private void BeginDrawingEdge(Vertex start) {
             UserIsDrawingEdge = true;
             StartingVertexEdgeDraw = start;
@@ -166,6 +180,8 @@ namespace TransitiveClosureCalculator.User_Controls {
             newEdge.SnapEndToVertexPoint(GetVertexCoords(start));
             Canvas.Children.Add(newEdge);
             DrawnEdge = newEdge;
+
+            Panel.SetZIndex(StartingVertexEdgeDraw, 2);
         }
 
         private void EndDrawingEdge(Vertex end) {
@@ -198,14 +214,21 @@ namespace TransitiveClosureCalculator.User_Controls {
                 ReverseAdjacencyList[end].Add(StartingVertexEdgeDraw);
             }
 
+            // Add Right-click-to-delete handlers
+            if (DrawnEdge != null) {
+                DrawnEdge.IsHitTestVisible = true;
+                DrawnEdge.MouseRightButtonDown += EdgeRightClick;
+            }
+
             // Finally,
+            Panel.SetZIndex(StartingVertexEdgeDraw, 0);
+            Panel.SetZIndex(DrawnEdge, -1);
             DrawnEdge = null;
             StartingVertexEdgeDraw = null;
         }
 
         private SelfLoop DrawSelfLoop(Vertex vertex) {
             SelfLoop selfLoop = new SelfLoop();
-            Panel.SetZIndex(selfLoop, 2);
             Point vertexCoord = GetVertexCoords(vertex);
             selfLoop.SnapStartToVertexPoint(vertexCoord);
             selfLoop.SnapEndToVertexPoint(vertexCoord);
@@ -256,7 +279,8 @@ namespace TransitiveClosureCalculator.User_Controls {
             }
             // Edge draw
             else if (UserIsDrawingEdge && DrawnEdge != null) {
-                DrawnEdge.EndPoint = mousePos;
+                // DrawnEdge.EndPoint = mousePos;
+                DrawnEdge.SnapEndToExactPoint(mousePos);
             }
         }
     }
