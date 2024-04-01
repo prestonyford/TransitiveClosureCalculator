@@ -194,44 +194,51 @@ namespace TransitiveClosureCalculator.User_Controls {
         }
 
         private void EndDrawingEdge(Vertex end) {
-            if (DrawnEdge == null) return;
+            if (DrawnEdge == null || StartingVertexEdgeDraw == null) return;
             UserIsDrawingEdge = false;
 
-            double left = Canvas.GetLeft(end);
-            double top = Canvas.GetTop(end);
+            if (!AdjacencyList[StartingVertexEdgeDraw].Contains(end)) {
+                double left = Canvas.GetLeft(end);
+                double top = Canvas.GetTop(end);
 
-            // Self loop edge
-            // Remove the existing edge to replace with self loop
-            if (StartingVertexEdgeDraw == end) {
-                // Remove the arrow line
-                // Canvas.Children.Remove(DrawnEdge);
-                RemoveControls(new Edge[] { DrawnEdge });
-                DrawnEdge = DrawSelfLoop(end);
+                // Self loop edge
+                // Remove the existing edge to replace with self loop
+                if (StartingVertexEdgeDraw == end) {
+                    // Remove the arrow line
+                    // Canvas.Children.Remove(DrawnEdge);
+                    RemoveControls(new Edge[] { DrawnEdge });
+                    DrawnEdge = DrawSelfLoop(end);
+                }
+                else {
+                    // Normal line edge
+                    // Snap the arrow to the Vertex and change its length to match
+                    DrawnEdge.SnapEndToVertexPoint(GetVertexCoords(end));
+                }
+
+                // Add to dictionaries
+                // Should never be null at this point but Visual Studio keeps yelling at me
+                if (DrawnEdge != null) {
+                    VertexConnectingEdges[StartingVertexEdgeDraw].Add(DrawnEdge);
+                    VertexConnectingEdges[end].Add(DrawnEdge);
+                    EdgesConnectingVertices.Add(DrawnEdge, new Tuple<Vertex, Vertex>(StartingVertexEdgeDraw, end));
+                    AdjacencyList[StartingVertexEdgeDraw].Add(end);
+                    ReverseAdjacencyList[end].Add(StartingVertexEdgeDraw);
+                }
+
+                // Add Right-click-to-delete handlers
+                if (DrawnEdge != null) {
+                    DrawnEdge.IsHitTestVisible = true;
+                    DrawnEdge.MouseRightButtonDown += EdgeRightClick;
+                }
+
+                // Call update handler
+                UpdateHandler.HandleCanvasUpdate(StringAdjacencyList());
             }
             else {
-                // Normal line edge
-                // Snap the arrow to the Vertex and change its length to match
-                DrawnEdge.SnapEndToVertexPoint(GetVertexCoords(end));
+                // Edge already exists, remove and ignore
+                RemoveControls(new UserControl[] { DrawnEdge });
+                return;
             }
-
-            // Add to dictionaries
-            // Should never be null at this point but Visual Studio keeps yelling at me
-            if (StartingVertexEdgeDraw != null && DrawnEdge != null) {
-                VertexConnectingEdges[StartingVertexEdgeDraw].Add(DrawnEdge);
-                VertexConnectingEdges[end].Add(DrawnEdge);
-                EdgesConnectingVertices.Add(DrawnEdge, new Tuple<Vertex, Vertex>(StartingVertexEdgeDraw, end));
-                AdjacencyList[StartingVertexEdgeDraw].Add(end);
-                ReverseAdjacencyList[end].Add(StartingVertexEdgeDraw);
-            }
-
-            // Add Right-click-to-delete handlers
-            if (DrawnEdge != null) {
-                DrawnEdge.IsHitTestVisible = true;
-                DrawnEdge.MouseRightButtonDown += EdgeRightClick;
-            }
-
-            // Call update handler
-            UpdateHandler.HandleCanvasUpdate(StringAdjacencyList());
 
             // Finally,
             Panel.SetZIndex(StartingVertexEdgeDraw, 0);
