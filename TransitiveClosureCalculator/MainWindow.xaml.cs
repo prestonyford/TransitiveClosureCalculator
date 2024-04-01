@@ -1,17 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using TransitiveClosureCalculator.User_Controls;
 
 namespace TransitiveClosureCalculator {
@@ -45,7 +32,13 @@ namespace TransitiveClosureCalculator {
         }
 
         private void UpdateResultingMatrix() {
-            Classes.Matrix matrix = new Classes.Matrix(CurrentStringAdjacencyList.Keys.ToList(), CurrentStringAdjacencyList);
+            Classes.Matrix matrix = new Classes.Matrix(
+                CurrentStringAdjacencyList.Keys.ToList(),
+                CurrentStringAdjacencyList.ToDictionary(
+                        entry => entry.Key,
+                        entry => new HashSet<string>(entry.Value)
+                    )
+                );
 
             if (ReflexiveCheckBox.IsChecked == true) {
                 matrix.MakeReflexive();
